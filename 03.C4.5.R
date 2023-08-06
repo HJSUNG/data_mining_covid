@@ -98,10 +98,12 @@ head(covid_dead_test);
 
 #=================================================================================================================
 
-# install.packages("RWeka")
-# install.packages("caret")
+# install.packages("RWeka");
+# install.packages("caret");
+# install.packages("partykit");
 library(RWeka);
 library(caret);
+library(partykit);
 
 # sex, patient_type : factor형 변수인데 level이 1개라 에러가 남 > column 제거거
 
@@ -111,14 +113,39 @@ covid_test = covid_test[,!names(covid_test) %in% c("sex", "patient_type")];
 covid_dead_train = covid_dead_train[,!names(covid_dead_train) %in% c("sex", "patient_type")];
 covid_dead_test = covid_dead_test[,!names(covid_dead_test) %in% c("sex", "patient_type")];
 
+#=================================================================================================================
 
-train = createFolds(covid_train$is_dead, k=10);
-C45Fit = train(is_dead ~ ., data=covid_train, trControl=trainControl(method = "cv", indexOut = train));
+# train = createFolds(covid_train$is_dead, k=10);
 
-library(ROSE);
-saveRDS(C45Fit, "C45Fit.rds");
-C45Fit = readRDS("C45Fit.rds");
+# C45Fit = train(is_dead ~ ., data=covid_train, trControl=trainControl(method = "cv", indexOut = train));
+# saveRDS(C45Fit, "C45Fit.rds");
 
-C45Fit
-plot(C45Fit)
-C45Fit$finalModel
+# train 오래 걸리므로, 저장한 모델 불러와서 사용 
+# C45Fit = readRDS("C45Fit.rds");
+# C45Fit
+# str(C45Fit)
+# C45Fit$finalModel
+# plot(C45Fit$finalModel)
+
+# J48 = Rweka 패키지에서 C4.5 알고리즘을 사용한 decision tree 만드는 Function
+
+J48Fit = J48(is_dead ~ ., data = covid_train, control = Weka_control(C = 0.1));
+plot(J48Fit);text(J48Fit);
+print(J48Fit);
+
+prediction = predict(J48Fit, newdata=covid_test[], type="class");
+summary(prediction);
+
+comparison=cbind(covid_test,prediction);
+comparison=as.data.frame(comparison);
+# print(comparison);
+
+print(paste("test 건수 : ",nrow(covid_test)));
+predictCorrect = comparison[comparison$is_dead == comparison$prediction,];
+print(paste("사망여부 예측성공 건수 : ", nrow(predictCorrect)));
+print(paste("사망여부 예측 정확도 : " ,nrow(predictCorrect)/nrow(covid_test))); # confidenceFactor/ 0.1 : 91.4%, 0.5: 90.8%
+
+#=================================================================================================================
+
+#C4.5 알고리즘은 Factor 형 변수를 다루기 위해 만들어진 알고리즘이라, numeric class 를 지원하지 않음 
+

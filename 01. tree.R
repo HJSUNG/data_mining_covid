@@ -101,23 +101,23 @@ head(covid_dead_test);
 
 #=================================================================================================================
 
-tree1 = tree (is_dead ~ ., data=covid_train, split = c("deviance"), na.action = na.pass, control = tree.control(nobs = nrow(covid_train), minsize = 100, mindev = 0.003))
+tree1 = tree (is_dead ~ ., data=covid_train, split = c("deviance"), na.action = na.pass, control = tree.control(nobs = nrow(covid_train), minsize = 100, mindev = 0.005))
 
 plot(tree1);text(tree1);
 # summary(tree1);
 print(tree1);
 
-tree2 = predict(tree1, covid_test[], type="class")
-summary(tree2)
+prediction = predict(tree1, covid_test[], type="class")
+summary(prediction)
 
-tree3=cbind(covid_test,tree2)
-tree3=as.data.frame(tree3)
-print(tree3)
+comparison=cbind(covid_test,prediction)
+comparison=as.data.frame(comparison)
+# print(comparison)
 
 print(paste("test 건수 : ",nrow(covid_test)))
-predictCorrect = tree3[tree3$is_dead == tree3$tree2,];
+predictCorrect = comparison[comparison$is_dead == comparison$prediction,];
 print(paste("사망여부 예측성공 건수 : ", nrow(predictCorrect)))
-print(paste("사망여부 예측 정확도 : " ,nrow(predictCorrect)/nrow(covid_test))) # mindev 0.003 : 71%, 0.004 : 64%, 0.005: 63%
+print(paste("사망여부 예측 정확도 : " ,nrow(predictCorrect)/nrow(covid_test))) # mindev 0.005: 61.7%, 0.03 : 60.8%
 
 #=================================================================================================================
 
@@ -127,20 +127,21 @@ plot(tree11);text(tree11);
 summary(tree11);
 print(tree11);
 
-tree12 = predict(tree11, covid_dead_test[], type="vector")
-summary(tree12)
-# print(tree12)
+prediction_dead = predict(tree11, covid_dead_test[], type="vector")
+summary(prediction_dead)
+# print(prediction_dead)
 
-tree13=cbind(covid_dead_test,tree12)
-tree13=as.data.frame(tree13)
-tree13$tree12 = round(tree13$tree12)
-# print(tree13)
+comparison_dead=cbind(covid_dead_test,prediction_dead)
+comparison_dead=as.data.frame(comparison_dead)
+comparison_dead$prediction_dead = round(comparison_dead$prediction_dead)
+# print(comparison_dead)
 
 print(paste("test 건수 : ", nrow(covid_dead_test)));
 
 # 투병일수 예측성공 기준 설정
-deadPredictCorrectCreteria = 10;
+deadPredictCorrectCreteria = 5;
 
-deadPredictCorrect = tree13[abs(tree13$day_cnt-tree13$tree12)<=deadPredictCorrectCreteria, 0]
+deadPredictCorrect = comparison_dead[abs(comparison_dead$day_cnt-comparison_dead$prediction_dead)<=deadPredictCorrectCreteria, 0]
 print(paste("투병일수 예측성공 건수(",deadPredictCorrectCreteria,"일) : " , nrow(deadPredictCorrect)));
-print(paste("투병일수 예측 정확도(",deadPredictCorrectCreteria,"일) : ", nrow(deadPredictCorrect) / nrow(covid_dead_test))) # 기준일수 5일 : 52%, 7일 : 73%, 10일: 90%
+print(paste("투병일수 예측 정확도(",deadPredictCorrectCreteria,"일) : ", nrow(deadPredictCorrect) / nrow(covid_dead_test))) # 기준일수 5일 : 52.1%, 7일 : 72.6%, 10일: 90%
+

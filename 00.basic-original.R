@@ -78,7 +78,7 @@ library(ROSE);
 
 train_oversampling_cnt = nrow(covid_train) - 2*nrow(covid_train[covid_train$is_dead == 1, ]); #12356
 
-train_oversampling_data = ROSE(is_dead ~ ., data = covid_train, N=50000, seed=3 )$data;
+train_oversampling_data = ROSE(is_dead ~ ., data = covid_train, N=50000, seed=10 )$data;
 train_oversampling_data_dead = train_oversampling_data[train_oversampling_data$is_dead==1,];
 
 covid_train_oversampled = rbind(covid_train, train_oversampling_data_dead[1:train_oversampling_cnt,]); #32356개
@@ -87,7 +87,7 @@ write.csv(covid_train_oversampled, "covid_train.csv", row.names = F);
 
 test_oversampling_cnt = nrow(covid_test) - 2*nrow(covid_test[covid_test$is_dead == 1, ]); #2762
 
-test_oversampling_data = ROSE(is_dead ~ ., data = covid_test, N=50000, seed=3 )$data;
+test_oversampling_data = ROSE(is_dead ~ ., data = covid_test, N=50000, seed=20 )$data;
 test_oversampling_data_dead = test_oversampling_data[test_oversampling_data$is_dead==1,];
 
 covid_test_oversampled = rbind(covid_test, test_oversampling_data_dead[1:test_oversampling_cnt,]); #5920개
