@@ -1,4 +1,4 @@
-setwd('C:/Rdirectory/data_mining/team_project');
+setwd('C:/Rdirectory/data_mining/data_mining_covid');
 
 #=================================================================================================================
 

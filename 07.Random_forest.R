@@ -1,8 +1,5 @@
 setwd('C:/Rdirectory/data_mining/data_mining_covid');
 
-# install.packages("rpart");
-library(rpart);
-
 #=================================================================================================================
 
 covid_train = read.csv("covid_train.csv", header=T);
@@ -101,31 +98,43 @@ head(covid_dead_test);
 
 #=================================================================================================================
 
-covidrpart = rpart(is_dead ~ ., data=covid_train, method = "class", control = rpart.control(minsplit = 10, minbucket  = 10, maxdepth = 10, cp = 0.005));
+# install.packages("randomForest");
+library(randomForest);
 
-plot(covidrpart); text(covidrpart);
-print(covidrpart);
+rfFit = randomForest(is_dead~., data=covid_train, importance=TRUE, ntree=1000, mtry=2);
+print(rfFit);
 
-prediction = predict(covidrpart, covid_test[], type="class");
+importance(rfFit);
+importance(rfFit, type=1);
+varImpPlot(rfFit, type=1);
+varImpPlot(rfFit, type=2);
+
+prediction = predict(rfFit, newdata=covid_test[], type="class");
 summary(prediction);
+confusionMatrix(prediction, covid_test$is_dead);
 
 comparison=cbind(covid_test,prediction);
 comparison=as.data.frame(comparison);
+
 # print(comparison);
 
 print(paste("test 건수 : ",nrow(covid_test)));
 predictCorrect = comparison[comparison$is_dead == comparison$prediction,];
 print(paste("사망여부 예측성공 건수 : ", nrow(predictCorrect)));
-print(paste("사망여부 예측 정확도 : " ,nrow(predictCorrect)/nrow(covid_test))); # cp 0.005 : 62%, 0.0004 : 67.5%, 0.0001: 68%, 
+print(paste("사망여부 예측 정확도 : " ,nrow(predictCorrect)/nrow(covid_test))); # 61.7%
 
 #=================================================================================================================
 
-deadrpart = rpart(day_cnt ~ ., data=covid_dead_train, method = "class", control = rpart.control(minsplit = 10, minbucket  = 10, maxdepth = 10, cp = 0.001));
+rfFit_dead = randomForest(day_cnt~., data=covid_dead_train, importance=TRUE, ntree=1000, mtry=2);
+plot(rfFit_dead);
+print(rfFit_dead);
 
-plot(deadrpart); text(deadrpart);
-print(deadrpart);
+importance(rfFit_dead);
+importance(rfFit_dead, type=1);
+varImpPlot(rfFit_dead, type=1);
+varImpPlot(rfFit_dead, type=2);
 
-prediction_dead = predict(deadrpart, covid_dead_test[], type="vector");
+prediction_dead = predict(rfFit_dead, covid_dead_test[], type="response");
 summary(prediction_dead);
 # print(prediction_dead);
 # prediction_dead;
@@ -138,12 +147,11 @@ comparison_dead$prediction_dead = round(comparison_dead$prediction_dead);
 print(paste("test 건수 : ", nrow(covid_dead_test)));
 
 # 투병일수 예측성공 기준 설정
-deadPredictCorrectCreteria = 10;
+deadPredictCorrectCreteria = 5;
 
 deadPredictCorrect = comparison_dead[abs(comparison_dead$day_cnt-comparison_dead$prediction_dead)<=deadPredictCorrectCreteria, 0];
 print(paste("투병일수 예측성공 건수(",deadPredictCorrectCreteria,"일) : " , nrow(deadPredictCorrect)));
 print(paste("투병일수 예측 정확도(",deadPredictCorrectCreteria,"일) : ", nrow(deadPredictCorrect) / nrow(covid_dead_test)));
 
-# cp = 0.002 / 5일 : 68%, 7일 : 81%, 10일 : 88%
-# cp = 0.001 / 5일 : 66.6%, 7일 : 79.2%, 10일 : 89%
+# 5일 : 50.4%, 7일 : 72.3%, 10일 : 92.3%
 

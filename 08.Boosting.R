@@ -1,8 +1,5 @@
 setwd('C:/Rdirectory/data_mining/data_mining_covid');
 
-# install.packages("rpart");
-library(rpart);
-
 #=================================================================================================================
 
 covid_train = read.csv("covid_train.csv", header=T);
@@ -101,34 +98,46 @@ head(covid_dead_test);
 
 #=================================================================================================================
 
-covidrpart = rpart(is_dead ~ ., data=covid_train, method = "class", control = rpart.control(minsplit = 10, minbucket  = 10, maxdepth = 10, cp = 0.005));
+# install.packages("gbm");
+require(gbm);
 
-plot(covidrpart); text(covidrpart);
-print(covidrpart);
+# no variation 인 변수 제거
 
-prediction = predict(covidrpart, covid_test[], type="class");
+covid_train = covid_train[,!names(covid_train) %in% c("sex", "patient_type")];
+covid_test = covid_test[,!names(covid_test) %in% c("sex", "patient_type")];
+
+
+gbmFit = gbm(is_dead~., data=covid_train,distribution = "multinomial", n.trees = 1000, shrinkage = 0.01, interaction.depth = 4);
+plot(gbmFit)
+print(gbmFit$fit);
+summary(gbmFit)
+
+prediction = predict.gbm(gbmFit, newdata=covid_test[], type="response");
 summary(prediction);
+value = apply(prediction,1,which.max);
 
-comparison=cbind(covid_test,prediction);
+comparison=cbind(covid_test,value);
 comparison=as.data.frame(comparison);
 # print(comparison);
 
 print(paste("test 건수 : ",nrow(covid_test)));
-predictCorrect = comparison[comparison$is_dead == comparison$prediction,];
+predictCorrect = comparison[comparison$is_dead == comparison$value,];
 print(paste("사망여부 예측성공 건수 : ", nrow(predictCorrect)));
-print(paste("사망여부 예측 정확도 : " ,nrow(predictCorrect)/nrow(covid_test))); # cp 0.005 : 62%, 0.0004 : 67.5%, 0.0001: 68%, 
+print(paste("사망여부 예측 정확도 : " ,nrow(predictCorrect)/nrow(covid_test))); # 71.4%
 
 #=================================================================================================================
 
-deadrpart = rpart(day_cnt ~ ., data=covid_dead_train, method = "class", control = rpart.control(minsplit = 10, minbucket  = 10, maxdepth = 10, cp = 0.001));
+covid_dead_train = covid_dead_train[,!names(covid_dead_train) %in% c("sex", "patient_type")];
+covid_dead_test = covid_dead_test[,!names(covid_dead_test) %in% c("sex", "patient_type")];
 
-plot(deadrpart); text(deadrpart);
-print(deadrpart);
+gbmFit_dead = gbm(day_cnt~., data=covid_dead_train,distribution = "gaussian", n.trees = 1000, shrinkage = 0.01, interaction.depth = 4);
+plot(gbmFit_dead)
+print(gbmFit_dead$fit);
+summary(gbmFit_dead)
 
-prediction_dead = predict(deadrpart, covid_dead_test[], type="vector");
-summary(prediction_dead);
-# print(prediction_dead);
-# prediction_dead;
+prediction_dead = predict.gbm(gbmFit_dead, newdata=covid_dead_test[], type="response");
+summary(prediction);
+prediction_dead
 
 comparison_dead=cbind(covid_dead_test,prediction_dead);
 comparison_dead=as.data.frame(comparison_dead);
@@ -138,12 +147,10 @@ comparison_dead$prediction_dead = round(comparison_dead$prediction_dead);
 print(paste("test 건수 : ", nrow(covid_dead_test)));
 
 # 투병일수 예측성공 기준 설정
-deadPredictCorrectCreteria = 10;
+deadPredictCorrectCreteria = 5;
 
 deadPredictCorrect = comparison_dead[abs(comparison_dead$day_cnt-comparison_dead$prediction_dead)<=deadPredictCorrectCreteria, 0];
 print(paste("투병일수 예측성공 건수(",deadPredictCorrectCreteria,"일) : " , nrow(deadPredictCorrect)));
 print(paste("투병일수 예측 정확도(",deadPredictCorrectCreteria,"일) : ", nrow(deadPredictCorrect) / nrow(covid_dead_test)));
 
-# cp = 0.002 / 5일 : 68%, 7일 : 81%, 10일 : 88%
-# cp = 0.001 / 5일 : 66.6%, 7일 : 79.2%, 10일 : 89%
-
+# 5일 : 54%, 7일 : 74.2%, 10일 : 91.4%

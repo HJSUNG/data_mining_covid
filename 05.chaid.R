@@ -1,4 +1,4 @@
-setwd('C:/Rdirectory/data_mining/team_project');
+setwd('C:/Rdirectory/data_mining/data_mining_covid');
 
 #=================================================================================================================
 
@@ -127,5 +127,5 @@ comparison=as.data.frame(comparison);
 
 print(paste("test 건수 : ",nrow(covid_test)));
 predictCorrect = comparison[comparison$is_dead == comparison$prediction,];
-print(paste("사망여부 예측성공 건수 : ", nrow(predictCorrect)));
-print(paste("사망여부 예측 정확도 : " ,nrow(predictCorrect)/nrow(covid_test)));
+print(paste("사망여부 예측성공 건수 : ", nrow(predictCorrect))); #3579
+print(paste("사망여부 예측 정확도 : " ,nrow(predictCorrect)/nrow(covid_test))); # 60.4%
