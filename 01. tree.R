@@ -104,7 +104,7 @@ head(covid_dead_test);
 tree1 = tree (is_dead ~ ., data=covid_train, split = c("deviance"), na.action = na.pass, control = tree.control(nobs = nrow(covid_train), minsize = 100, mindev = 0.005))
 
 plot(tree1);text(tree1);
-# summary(tree1);
+summary(tree1);
 print(tree1);
 
 prediction = predict(tree1, covid_test[], type="class")
@@ -118,6 +118,16 @@ print(paste("test 건수 : ",nrow(covid_test)))
 predictCorrect = comparison[comparison$is_dead == comparison$prediction,];
 print(paste("사망여부 예측성공 건수 : ", nrow(predictCorrect)))
 print(paste("사망여부 예측 정확도 : " ,nrow(predictCorrect)/nrow(covid_test))) # mindev 0.005: 61.7%, 0.03 : 60.8%
+
+# true-positive, true-negative, false-positive, false-negative rate 계산
+tp = nrow(comparison[comparison$is_dead == 1 & comparison$prediction == 1, ])/nrow(covid_test);
+tn = nrow(comparison[comparison$is_dead == 2 & comparison$prediction == 2, ])/nrow(covid_test);
+fp = nrow(comparison[comparison$is_dead == 2 & comparison$prediction == 1, ])/nrow(covid_test);
+fn = nrow(comparison[comparison$is_dead == 1 & comparison$prediction == 2, ])/nrow(covid_test);
+
+# true-positive, true-negative, false-positive, false-negative rate 계산  
+confusion_matrix = matrix(c(tp, fn, fp, tn), nrow = 2, byrow = TRUE, dimnames = list(c("Actual Positive", "Actual Negative"), c("Predicted Positive", "Predicted Negative")))
+confusion_matrix;
 
 #=================================================================================================================
 
