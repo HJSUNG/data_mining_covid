@@ -130,8 +130,8 @@ covid_dead_test = covid_dead_test[,!names(covid_dead_test) %in% c("sex", "patien
 # J48 = Rweka 패키지에서 C4.5 알고리즘을 사용한 decision tree 만드는 Function
 
 J48Fit = J48(is_dead ~ ., data = covid_train, control = Weka_control(C = 0.1));
-plot(J48Fit);text(J48Fit);
-print(J48Fit);
+# plot(J48Fit);text(J48Fit);
+# print(J48Fit);
 
 prediction = predict(J48Fit, newdata=covid_test[], type="class");
 summary(prediction);
@@ -144,6 +144,16 @@ print(paste("test 건수 : ",nrow(covid_test)));
 predictCorrect = comparison[comparison$is_dead == comparison$prediction,];
 print(paste("사망여부 예측성공 건수 : ", nrow(predictCorrect)));
 print(paste("사망여부 예측 정확도 : " ,nrow(predictCorrect)/nrow(covid_test))); # confidenceFactor/ 0.1 : 91.4%, 0.5: 90.8%
+
+# true-positive, true-negative, false-positive, false-negative rate 계산
+tp = round(nrow(comparison[comparison$is_dead == 1 & comparison$prediction == 1, ])/nrow(covid_test),2);
+tn = round(nrow(comparison[comparison$is_dead == 2 & comparison$prediction == 2, ])/nrow(covid_test),2);
+fp = round(nrow(comparison[comparison$is_dead == 2 & comparison$prediction == 1, ])/nrow(covid_test),2);
+fn = round(nrow(comparison[comparison$is_dead == 1 & comparison$prediction == 2, ])/nrow(covid_test),2);
+
+# true-positive, true-negative, false-positive, false-negative rate 계산  
+confusion_matrix = matrix(c(tp, fn, fp, tn), nrow = 2, byrow = TRUE, dimnames = list(c("Actual Positive", "Actual Negative"), c("Predicted Positive", "Predicted Negative")))
+confusion_matrix;
 
 #=================================================================================================================
 

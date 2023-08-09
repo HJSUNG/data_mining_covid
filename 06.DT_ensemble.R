@@ -124,6 +124,17 @@ predictCorrect = comparison[comparison$is_dead == comparison$prediction,];
 print(paste("사망여부 예측성공 건수 : ", nrow(predictCorrect)));
 print(paste("사망여부 예측 정확도 : " ,nrow(predictCorrect)/nrow(covid_test))); # 61%
 
+# true-positive, true-negative, false-positive, false-negative rate 계산
+tp = round(nrow(comparison[comparison$is_dead == 1 & comparison$prediction == 1, ])/nrow(covid_test),2);
+tn = round(nrow(comparison[comparison$is_dead == 2 & comparison$prediction == 2, ])/nrow(covid_test),2);
+fp = round(nrow(comparison[comparison$is_dead == 2 & comparison$prediction == 1, ])/nrow(covid_test),2);
+fn = round(nrow(comparison[comparison$is_dead == 1 & comparison$prediction == 2, ])/nrow(covid_test),2);
+
+# true-positive, true-negative, false-positive, false-negative rate 계산  
+confusion_matrix = matrix(c(tp, fn, fp, tn), nrow = 2, byrow = TRUE, dimnames = list(c("Actual Positive", "Actual Negative"), c("Predicted Positive", "Predicted Negative")))
+confusion_matrix;
+
+
 #=================================================================================================================
 
 baggFit_dead = bagging(day_cnt~., data=covid_dead_train, nbag = 100, control=rpart.control(minsplit = 10),coob=T);

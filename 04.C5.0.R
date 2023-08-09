@@ -105,8 +105,8 @@ library(printr);
 
 C50Fit = C5.0(is_dead~., data = covid_train, trials=1);
 
-plot(C50Fit); text(C50Fit);
-print(C50Fit);
+# plot(C50Fit); text(C50Fit);
+# print(C50Fit);
 
 prediction = predict(C50Fit, newdata=covid_test[], type="class");
 summary(prediction);
@@ -119,6 +119,17 @@ print(paste("test 건수 : ",nrow(covid_test)));
 predictCorrect = comparison[comparison$is_dead == comparison$prediction,];
 print(paste("사망여부 예측성공 건수 : ", nrow(predictCorrect)));
 print(paste("사망여부 예측 정확도 : " ,nrow(predictCorrect)/nrow(covid_test))); # trials 1 : 91%, 5: 85%, 10 : 80%, 20 : 70%, 30 : 67.8%
+
+# true-positive, true-negative, false-positive, false-negative rate 계산
+tp = round(nrow(comparison[comparison$is_dead == 1 & comparison$prediction == 1, ])/nrow(covid_test),2);
+tn = round(nrow(comparison[comparison$is_dead == 2 & comparison$prediction == 2, ])/nrow(covid_test),2);
+fp = round(nrow(comparison[comparison$is_dead == 2 & comparison$prediction == 1, ])/nrow(covid_test),2);
+fn = round(nrow(comparison[comparison$is_dead == 1 & comparison$prediction == 2, ])/nrow(covid_test),2);
+
+# true-positive, true-negative, false-positive, false-negative rate 계산  
+confusion_matrix = matrix(c(tp, fn, fp, tn), nrow = 2, byrow = TRUE, dimnames = list(c("Actual Positive", "Actual Negative"), c("Predicted Positive", "Predicted Negative")))
+confusion_matrix;
+
 
 #=================================================================================================================
 
