@@ -102,11 +102,14 @@ head(covid_dead_test);
 # install.packages("printr");
 library(C50);
 library(printr);
+library(rpart);
 
-C50Fit = C5.0(is_dead~., data = covid_train, trials=1);
+covid_train = covid_train[,!names(covid_train) %in% c("sex", "patient_type")];
+covid_test = covid_test[,!names(covid_test) %in% c("sex", "patient_type")];
 
-# plot(C50Fit); text(C50Fit);
-# print(C50Fit);
+C50Fit = C5.0(is_dead~., data = covid_train, trials=100);
+plot(C50Fit); text(C50Fit);
+summary(C50Fit);
 
 prediction = predict(C50Fit, newdata=covid_test[], type="class");
 summary(prediction);

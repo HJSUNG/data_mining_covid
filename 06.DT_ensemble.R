@@ -108,6 +108,9 @@ library(rpart.plot);
 
 baggFit = bagging(is_dead~., data=covid_train, nbag = 100, control=rpart.control(minsplit = 10),coob=T);
 
+baggFit$mtrees[1]
+
+
 # plot(baggFit); text(baggFit);
 print(baggFit);
 
@@ -139,6 +142,8 @@ confusion_matrix;
 
 baggFit_dead = bagging(day_cnt~., data=covid_dead_train, nbag = 100, control=rpart.control(minsplit = 10),coob=T);
 
+baggFit_dead$mtrees[1]
+
 # plot(baggFit_dead); text(baggFit_dead);
 print(baggFit_dead);
 
@@ -155,7 +160,7 @@ comparison_dead$prediction_dead = round(comparison_dead$prediction_dead);
 print(paste("test 건수 : ", nrow(covid_dead_test)));
 
 # 투병일수 예측성공 기준 설정
-deadPredictCorrectCreteria = 5;
+deadPredictCorrectCreteria = 10;
 
 deadPredictCorrect = comparison_dead[abs(comparison_dead$day_cnt-comparison_dead$prediction_dead)<=deadPredictCorrectCreteria, 0];
 print(paste("투병일수 예측성공 건수(",deadPredictCorrectCreteria,"일) : " , nrow(deadPredictCorrect)));

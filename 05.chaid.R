@@ -114,7 +114,7 @@ covid_dead_test = covid_dead_test[,!names(covid_dead_test) %in% c("age")];
 
 chaidFit = chaid(is_dead~., data = covid_train, control = chaid_control(minsplit = 5000, minprob = 0.4));
 
-# plot(chaidFit);
+plot(chaidFit);
 print(chaidFit);
 
 prediction = predict(chaidFit, newdata=covid_test[]);

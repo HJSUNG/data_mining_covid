@@ -102,7 +102,10 @@ head(covid_dead_test);
 library(randomForest);
 
 rfFit = randomForest(is_dead~., data=covid_train, importance=TRUE, ntree=1000, mtry=2);
-print(rfFit);
+print(rfFit$forest);
+
+trees = getTree(rfFit, k=1);
+plot(trees[1])
 
 importance(rfFit);
 importance(rfFit, type=1);
@@ -157,7 +160,7 @@ comparison_dead$prediction_dead = round(comparison_dead$prediction_dead);
 print(paste("test 건수 : ", nrow(covid_dead_test)));
 
 # 투병일수 예측성공 기준 설정
-deadPredictCorrectCreteria = 5;
+deadPredictCorrectCreteria = 10;
 
 deadPredictCorrect = comparison_dead[abs(comparison_dead$day_cnt-comparison_dead$prediction_dead)<=deadPredictCorrectCreteria, 0];
 print(paste("투병일수 예측성공 건수(",deadPredictCorrectCreteria,"일) : " , nrow(deadPredictCorrect)));

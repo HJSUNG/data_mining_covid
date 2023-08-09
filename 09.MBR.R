@@ -106,7 +106,7 @@ test_target = covid_test[,16];
 test_target;
 
 prediction = knn(covid_train[,1:15], covid_test[,1:15], cl=train_target, k=3, prob=F);
-# prediction
+
 table(test_target, prediction)
 
 comparison=cbind(covid_test,prediction);
@@ -145,7 +145,7 @@ comparison_dead$prediction_dead = round(comparison_dead$prediction_dead);
 print(paste("test 건수 : ", nrow(covid_dead_test)));
 
 # 투병일수 예측성공 기준 설정
-deadPredictCorrectCreteria = 5;
+deadPredictCorrectCreteria = 10;
 
 # comparison_dead$prediction_dead numeric으로 형변환하여 연산
 deadPredictCorrect = comparison_dead[abs(comparison_dead$day_cnt-as.numeric(comparison_dead$prediction_dead))<=deadPredictCorrectCreteria, 0];

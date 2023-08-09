@@ -130,8 +130,8 @@ covid_dead_test = covid_dead_test[,!names(covid_dead_test) %in% c("sex", "patien
 # J48 = Rweka 패키지에서 C4.5 알고리즘을 사용한 decision tree 만드는 Function
 
 J48Fit = J48(is_dead ~ ., data = covid_train, control = Weka_control(C = 0.1));
-# plot(J48Fit);text(J48Fit);
-# print(J48Fit);
+plot(J48Fit);text(J48Fit);
+print(J48Fit);
 
 prediction = predict(J48Fit, newdata=covid_test[], type="class");
 summary(prediction);
@@ -157,5 +157,4 @@ confusion_matrix;
 
 #=================================================================================================================
 
-#C4.5 알고리즘은 Factor 형 변수를 다루기 위해 만들어진 알고리즘이라, numeric class 를 지원하지 않음 
-
+#C4.5 알고리즘은 Factor 형 변수를 다루기 위해 만들어진 알고리즘이라, numeric class 를 지원하지 않음

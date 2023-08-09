@@ -36,6 +36,7 @@ library(neuralnet);
 nn1 = neuralnet(is_dead~., data=covid_train, algorithm = "rprop+", act.fct = 'logistic',linear.output = TRUE, hidden =3);
 plot(nn1);
 summary(nn1);
+print(nn1$result.matrix)
 # saveRDS(nn1, "nn1.rds");
 
 prediction = predict(nn1, covid_test[], type="response");

@@ -80,3 +80,4 @@ print(paste("투병일수 예측성공 건수(",deadPredictCorrectCreteria,"일)
 print(paste("투병일수 예측 정확도(",deadPredictCorrectCreteria,"일) : ", nrow(deadPredictCorrect) / nrow(covid_dead_test)));
 
 # 5일 : 51.6%, 7일 : 72.6%, 10일 : 92.1%
+
